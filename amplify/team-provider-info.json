@@ -1,0 +1,26 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-pi-rover-app-dev-182429-authRole",
+            "UnauthRoleArn": "arn:aws:iam::484448430090:role/amplify-pi-rover-app-dev-182429-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::484448430090:role/amplify-pi-rover-app-dev-182429-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "amplify-pi-rover-app-dev-182429-deployment",
+            "UnauthRoleName": "amplify-pi-rover-app-dev-182429-unauthRole",
+            "StackName": "amplify-pi-rover-app-dev-182429",
+            "StackId": "arn:aws:cloudformation:us-west-2:484448430090:stack/amplify-pi-rover-app-dev-182429/e04958d0-841e-11ea-978b-0aad1cb40640",
+            "AmplifyAppId": "d2o9qokkk16491"
+        },
+        "categories": {
+            "auth": {
+                "piroverapp1e580359": {}
+            },
+            "hosting": {
+                "amplifyhosting": {
+                    "appId": "d2o9qokkk16491",
+                    "type": "manual"
+                }
+            }
+        }
+    }
+}

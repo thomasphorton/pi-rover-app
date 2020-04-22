@@ -1,0 +1,8 @@
+type Rover @model @auth(rules: [
+    {allow: private},
+    {allow: private, provider: iam}
+  ]) {
+  id: ID!
+  name: String!
+  imageURL: String
+}

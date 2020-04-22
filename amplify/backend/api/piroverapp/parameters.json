@@ -1,0 +1,11 @@
+{
+    "AppSyncApiName": "piroverapp",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST",
+    "DynamoDBEnableServerSideEncryption": "false",
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authpiroverapp1e580359",
+            "Outputs.UserPoolId"
+        ]
+    }
+}
