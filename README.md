@@ -1,68 +1,121 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Pi Rover App
+
+A React web application that serves as a real-time dashboard for a Raspberry Pi-powered rover. The frontend displays a live camera feed from the rover and updates automatically as new images are captured, using AWS AppSync GraphQL subscriptions.
+
+## How It Works
+
+The system is composed of three parts working together:
+
+1. **Raspberry Pi rover** — captures images and uploads them to Amazon S3, then invokes an AWS Lambda function to update the rover's state.
+2. **AWS backend** — a Lambda function updates the rover record in AWS AppSync (GraphQL). AppSync broadcasts the change to all connected clients via a real-time subscription.
+3. **This React app** — authenticates users via Amazon Cognito, fetches the current rover state on load, and subscribes to live updates so the displayed image refreshes automatically whenever the rover sends a new one.
+
+```
+Pi Rover → S3 (image) → Lambda → AppSync (GraphQL mutation)
+                                         ↓ subscription
+                               React App (live image update)
+```
+
+## AWS Backend Services
+
+| Service | Purpose |
+|---|---|
+| **AWS AppSync** | GraphQL API — stores rover state and pushes real-time updates |
+| **Amazon Cognito** | User authentication (private access only) |
+| **AWS Lambda** | Receives events from the rover and writes updates to AppSync |
+| **Amazon S3** | Stores rover camera images |
+| **AWS Amplify Hosting** | Hosts the React frontend |
+
+### GraphQL Data Model
+
+```graphql
+type Rover {
+  id: ID!
+  name: String!
+  imageURL: String
+}
+```
+
+Access is restricted to authenticated users (Cognito user pools) and the Lambda function (IAM).
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v12 or later)
+- [AWS Amplify CLI](https://docs.amplify.aws/cli/start/install/) (`npm install -g @aws-amplify/cli`)
+- An AWS account with Amplify configured
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/thomasphorton/pi-rover-app.git
+cd pi-rover-app
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure the Amplify backend
+
+If you are deploying your own backend, initialise and push the Amplify environment:
+
+```bash
+amplify init
+amplify push
+```
+
+This provisions the AppSync API, Cognito user pool, Lambda function, S3 bucket, and Amplify Hosting. An `src/aws-exports.js` file will be generated automatically with your environment's connection details.
+
+If you are connecting to an existing environment, pull the configuration:
+
+```bash
+amplify pull
+```
+
+### 4. Run the app locally
+
+```bash
+npm start
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. You will be prompted to sign in or create an account via the Cognito-powered login screen.
 
 ## Available Scripts
 
-In the project directory, you can run:
+| Command | Description |
+|---|---|
+| `npm start` | Starts the development server at `http://localhost:3000` |
+| `npm test` | Runs the test suite in interactive watch mode |
+| `npm run build` | Creates an optimised production build in the `build/` folder |
 
-### `npm start`
+## Deploying
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+After running `amplify push`, deploy the frontend to Amplify Hosting:
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```bash
+npm run build
+amplify publish
+```
 
-### `npm test`
+## Project Structure
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```
+src/
+  App.js          # Main component — fetches rover state and subscribes to updates
+  Rover.js        # Rover component (in progress)
+  graphql/
+    queries.js    # getRover, listRovers
+    mutations.js  # createRover, updateRover, deleteRover
+    subscriptions.js  # onCreateRover, onUpdateRover, onDeleteRover
+amplify/
+  backend/
+    api/          # AppSync GraphQL schema
+    auth/         # Cognito user pool configuration
+    function/     # Lambda function that updates rover state from the Pi
+    storage/      # S3 bucket for rover images
+    hosting/      # Amplify Hosting configuration
+```
